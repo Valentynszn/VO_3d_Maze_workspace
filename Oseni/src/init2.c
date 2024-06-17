@@ -22,7 +22,7 @@ int main(void)
 	window = SDL_CreateWindow(
 			"tutorial",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			1920, 1080,
+			1280, 720,
 			SDL_WINDOW_SHOWN
 			);
 
@@ -45,8 +45,8 @@ int main(void)
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 	SDL_RenderClear(renderer); /*Clear the screen with black*/
 
-	int centerX = 1920 / 2;
-	int centerY = 1080 / 2;
+	int centerX = 1280 / 2;
+	int centerY = 7200 / 2;
 	SDL_Rect rect = {centerX - bot_size / 2, centerY - bot_size / 2, bot_size, bot_size};
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
 	SDL_RenderFillRect(renderer, &rect);

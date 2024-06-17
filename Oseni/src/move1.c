@@ -12,7 +12,7 @@ int main(void)
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 20; /*size of the guy at the center*/
-	SDL_Rect rect = {0, 0, bot_size, bot_size};
+	SDL_Rect rect = {1280 - bot_size / 2, 600 - bot_size / 2, bot_size, bot_size};
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -58,27 +58,27 @@ int main(void)
 				case SDL_KEYDOWN:
 					switch (event.key.keysym.sym)
 					{
-						
-					case SDLK_w:
-						rect.y -= 10;	/*Move up*/
-						break;
-					case SDLK_a:
-						rect.x -= 10;
-						break;
-					case SDLK_d:
-						rect.x += 10;
-						break;
-					case SDLK_x:
-						rect.y += 10;
-						break;
-					default:
-						break;
+						case SDLK_w:
+							rect.y -= 10;	/*Move up*/
+							break;
+						case SDLK_a:
+							rect.x -= 10;
+							break;
+						case SDLK_d:
+							rect.x += 10;
+							break;
+						case SDLK_x:
+							rect.y += 10;
+							break;
+						default:
+							break;
 					}
+					break;
+				default:
+					break;
 			}
-					break;
-			default:
-					break;
 		}
+
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 		SDL_RenderClear(renderer); /*Clear the screen with black*/
 

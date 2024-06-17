@@ -12,14 +12,14 @@ int main(void)
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0);
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
 		return (1);
 	}
 
-	SDL_CreateWindow(
-			"window",
+	window = SDL_CreateWindow(
+			"tutorial",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			640, 480,
 			SDL_WINDOW_SHOWN
@@ -32,7 +32,7 @@ int main(void)
 		 return (1);
 	}
 
-	SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == NULL)
 	{
 		printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -52,7 +52,7 @@ int main(void)
 
 	SDL_RenderPresent(renderer); /*update the screen*/
 
-	SDL_Delay(10000000); /*Waits for 10 seconds*/
+	SDL_Delay(1000); /*Waits for 10 seconds*/
 
 	 /*Cleans up window*/
 	SDL_DestroyWindow(window);

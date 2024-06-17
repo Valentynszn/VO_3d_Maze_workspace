@@ -94,12 +94,12 @@ int main(void)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 		SDL_RenderClear(renderer); /*Clear the screen with black*/
 
+		/* Calculate center of the bot */
+		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};
+
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
 		SDL_Rect rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
 		SDL_RenderFillRect(renderer, &rect);
-
-		/* Calculate center of the bot */
-		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};
 
 		/* Draw the direction line */
 		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /* Set draw color to red*/

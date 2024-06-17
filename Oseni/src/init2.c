@@ -46,7 +46,7 @@ int main(void)
 	SDL_RenderClear(renderer); /*Clear the screen with black*/
 
 	int centerX = 1280 / 2;
-	int centerY = 7200 / 2;
+	int centerY = 720 / 2;
 	SDL_Rect rect = {centerX - bot_size / 2, centerY - bot_size / 2, bot_size, bot_size};
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
 	SDL_RenderFillRect(renderer, &rect);

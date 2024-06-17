@@ -23,7 +23,7 @@ int main(void)
 	window = SDL_CreateWindow(
 			"tutorial",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			1280, 720,
+			1280, 600,
 			SDL_WINDOW_SHOWN
 			);
 
@@ -55,38 +55,45 @@ int main(void)
 				case SDL_QUIT:
 					quit = 1;
 					break;
-				case SDLK_w:
-					rect.y -= 10;	/*Move up*/
-					break;
-				case SDLK_a:
-					rect.x -= 10;
-					break;
-				case SDLK_d:
-					rect.x += 10;
-					break;
-				case SDLK_x:
-					rect.y += 10;
-					break;
-				default:
-					break;
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym)
+					{
+						
+					case SDLK_w:
+						rect.y -= 10;	/*Move up*/
+						break;
+					case SDLK_a:
+						rect.x -= 10;
+						break;
+					case SDLK_d:
+						rect.x += 10;
+						break;
+					case SDLK_x:
+						rect.y += 10;
+						break;
+					default:
+						break;
+					}
 			}
-			break;
+					break;
+			default:
+					break;
 		}
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
+		SDL_RenderClear(renderer); /*Clear the screen with black*/
+
+		int centerX = 1280 / 2;
+		int centerY = 600 / 2;
+		SDL_Rect box = {centerX - bot_size / 2, centerY - bot_size / 2, bot_size, bot_size};
+		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
+		SDL_RenderFillRect(renderer, &rect);
+
+
+		SDL_RenderPresent(renderer); /*update the screen*/
+
+		SDL_Delay(10); /*adjust delay for frame rate*/
 	}
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
-	SDL_RenderClear(renderer); /*Clear the screen with black*/
-
-	int centerX = 1280 / 2;
-	int centerY = 720 / 2;
-	SDL_Rect box = {centerX - bot_size / 2, centerY - bot_size / 2, bot_size, bot_size};
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
-	SDL_RenderFillRect(renderer, &rect);
-
-
-	SDL_RenderPresent(renderer); /*update the screen*/
-
-	SDL_Delay(10); /*adjust delay for frame rate*/
 
 	 /*Cleans up window*/
 	SDL_DestroyRenderer(renderer);

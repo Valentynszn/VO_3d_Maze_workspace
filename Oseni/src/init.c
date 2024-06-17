@@ -52,7 +52,7 @@ int main(void)
 
 	SDL_RenderPresent(renderer); /*update the screen*/
 
-	SDL_Delay(1000); /*Waits for 10 seconds*/
+	SDL_Delay(10000); /*Waits for 10 seconds*/
 
 	 /*Cleans up window*/
 	SDL_DestroyWindow(window);

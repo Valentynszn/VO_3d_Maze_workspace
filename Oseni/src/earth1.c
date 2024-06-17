@@ -14,9 +14,9 @@
  * Return: 0
  */
 
-void loadMap(char map[MAP_HEIGHT][MAP_WIDTH], const char *world.c)
+void loadMap(char map[MAP_HEIGHT][MAP_WIDTH])
 {
-	FILE *file = fopen(world.c, "r");
+	FILE *file = fopen("world.txt", "r");
 	if (file == NULL)
 	{
 		printf("Could not open map file!\n");

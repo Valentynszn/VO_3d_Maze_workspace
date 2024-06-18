@@ -88,6 +88,9 @@ int main(void)
 		return (1);
 	}
 
+	char map[MAP_HEIGHT][MAP_WIDTH];
+	loadMap(map);
+
 	/*Event loop*/
 	SDL_Event event;
 	int quit = 0;
@@ -135,6 +138,8 @@ int main(void)
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 		SDL_RenderClear(renderer); /*Clear the screen with black*/
+
+		renderMap(renderer, map); /* Render the map */
 
 		/* Calculate center of the bot */
 		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};

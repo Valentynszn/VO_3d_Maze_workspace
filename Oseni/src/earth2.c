@@ -127,42 +127,39 @@ int main(void)
 	{
 		while (SDL_PollEvent(&event))
 		{
-			switch (event.type)
+			if (event.type == SDL_QUIT)
 			{
-				case SDL_QUIT:
-					quit = 1;
-					break;
-				case SDL_KEYDOWN:
-					/* Initialize new_rect to the current position before moving */
-					new_rect_x = rect;
-					new_rect_y = rect;
-					switch (event.key.keysym.sym)
-					{
-						case SDLK_w:
-							new_rect_x.x += speed * cos(angle); /* Move forward */
-							new_rect_y.y += speed * sin(angle);
-							break;
-						case SDLK_a:
-							angle -= 30.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
-							break;
-						case SDLK_d:
-							angle += 30.0f * M_PI / 180.0f; /* Rotate right by 30 degrees */
-							break;
-						case SDLK_x:
-							new_rect_x.x -= speed * cos(angle);
-							new_rect_y.y -= speed * sin(angle);
-							break;
-						default:
-							break;
-					}
-					break;
-				default:
-					break;
+				quit = 1;
 			}
 		}
+		/* Initialize new_rect to the current position before moving */
+		new_rect_x = rect;
+		new_rect_y = rect;
 
+		if (keystate[SDL_SCANCODE_W])
+		{
+			new_rect_x.x += speed * cos(angle); /* Move forward */
+			new_rect_y.y += speed * sin(angle);
+		}
+		if (keystate[SDL_SCANCODE_A])
+		{
+			angle -= 30.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
+		}
+		if (keystate[SDL_SCANCODE_D])
+		{
+			angle += 30.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
+		}
+		if (keystate[SDL_SCANCODE_S])
+		{
+			new_rect_x.x -= speed * cos(angle);
+			new_rect_y.y -= speed * sin(angle);
+
+		}
+	
+	
+	
 		/* Check for collisions */
-		if (!checkCollision(&new_rect, map))
+		if (!checkCollision(&new_rect_x, map))
 		{
 			rect.x = new_rect_x.x; /* Update x position only if no collision */
 		}
@@ -199,7 +196,7 @@ int main(void)
 		SDL_RenderPresent(renderer); /*update the screen*/
 
 		SDL_Delay(10); /*adjust delay for frame rate*/
-	}
+}
 
 
 	 /*Cleans up window*/

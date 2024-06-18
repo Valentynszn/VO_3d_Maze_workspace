@@ -24,7 +24,7 @@ char map[MAP_HEIGHT][MAP_WIDTH] = {
 	{6, 0, 0, 0, 0, 0, 7, 7, 7, 0, 0, 1, 0, 0, 0, 0, 7, 7, 0, 6},
 	{6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
 	{6, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 1, 0, 6},
-	{6, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 1, 0, 6},
+	{6, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 1, 0, 6},
 	{6, 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
 	{6, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
 	{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
@@ -130,11 +130,13 @@ int main(void)
 					quit = 1;
 					break;
 				case SDL_KEYDOWN:
+					/* Initialize new_rect to the current position before moving */
+					new_rect = rect;
 					switch (event.key.keysym.sym)
 					{
 						case SDLK_w:
-							rect.x += speed * cos(angle); /* Move forward */
-							rect.y += speed * sin(angle);
+							new_rect.x += speed * cos(angle); /* Move forward */
+							new_rect.y += speed * sin(angle);
 							break;
 						case SDLK_a:
 							angle -= 30.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
@@ -143,8 +145,8 @@ int main(void)
 							angle += 30.0f * M_PI / 180.0f; /* Rotate right by 30 degrees */
 							break;
 						case SDLK_x:
-							rect.x -= speed * cos(angle);
-							rect.y -= speed * sin(angle);
+							new_rect.x -= speed * cos(angle);
+							new_rect.y -= speed * sin(angle);
 							break;
 						default:
 							break;

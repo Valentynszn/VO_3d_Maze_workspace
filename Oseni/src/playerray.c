@@ -87,44 +87,49 @@ bool checkCollision(SDL_Rect *rect, char map[MAP_HEIGHT][MAP_WIDTH])
 	return false;
 }
 
+bool isWall(float x, float y)
+{
+	/*Return true if (x, y) is a wall, false otherwise*/
+	return false;
+}
+
 void castRays(SDL_Renderer *renderer, Player *player)
 {
-	float ray_angle_increment = FOV_ANGLE / (float)NUM_RAYS;
-	float ray_angle = player->angle - FOV_ANGLE / 2.0f;
+	int ray_count = 100;
+	float fov = M_PI / 3; /*Field of view (45 degrees)*/
+	float start_angle = -fov / 2; /*Start angle of the rays*/
 
-	for (int ray = 0; ray < NUM_RAYS; ray++)
+	for (int i = 0; i < ray_count; i++)
 	{
-		/*Calculate ray endpoints*/
-		float ray_dir_x = cos(ray_angle);
-		float ray_dir_y = sin(ray_angle);
-
-		/*Initialize ray variables*/
-		float x = player->position.x;
-		float y = player->position.y;
+		float ray_angle = start_angle + (fov / ray_count) * i;
+		float ray_x = player->position.x;
+		float ray_y = player->position.y;
+		/*Calculating rays end point*/
+		float ray_dx = cos(ray_angle);
+		float ray_dy = sin(ray_angle);
+		float distance = 0;
 
 		/*Ray casting loop*/
-		while (true)
+		while (distance < 1000)
 		{
-			x += ray_dir_x;
-			y += ray_dir_y;
+			ray_x += ray_dx;
+			ray_y += ray_dy;
+			distance += 1;
 
-			int map_x = (int)(x / TILE_SIZE);
-			int map_y = (int)(y / TILE_SIZE);
-
-			if (map[map_y][map_x] != 0)
-			{
-				/*Hit a wall, draw the ray*/
-				SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-				SDL_RenderDrawLine(renderer,
-						player->position.x,
-						player->position.y,
-						x,
-						y);
-				break;
-			}
-
+			 if (isWall(ray_x, ray_y))
+			 {
+				 break;
+			 }
+			 
+			 /*Hit a wall, draw the ray*/
+			SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+			SDL_RenderDrawLine(renderer,
+					player->position.x,
+					player->position.y,
+					ray_x,
+					ray_y);
 		}
-		ray_angle += ray_angle_increment;
+	
 	}
 }
 

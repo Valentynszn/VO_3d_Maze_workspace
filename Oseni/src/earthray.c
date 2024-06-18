@@ -8,7 +8,7 @@
 #define MAP_HEIGHT 13
 #define TILE_SIZE 40
 #define FOV_ANGLE 60 * M_PI / 180.0f  /*Field of view angle in radians*/
-#define NUM_RAYS 300
+#define NUM_RAYS 100
 
 /**
  * Main function to initialize SDL, create a window and renderer, draw a point in the center of the screen..
@@ -99,35 +99,31 @@ void castRays(SDL_Renderer *renderer, Player *player)
 		float ray_dir_y = sin(ray_angle);
 
 		/*Initialize ray variables*/
-		float ray_length = 0.0f;
-		float step_x = 40 * ray_dir_x;
-		float step_y = 40 * ray_dir_y;
-
 		float x = player->position.x;
 		float y = player->position.y;
+		bool hit = false;
 
 		/*Ray casting loop*/
-		while (ray_length < 300)
+		while (!hit)
 		{
-			x += step_x;
-			y += step_y;
+			x += ray_dir_x;
+			y += ray_dir_y;
 
-			int map_x = x / TILE_SIZE;
-			int map_y = y / TILE_SIZE;
+			int map_x = (int)(x / TILE_SIZE);
+			int map_y = (int)(y / TILE_SIZE);
 
 			if (map[map_y][map_x] != 0)
 			{
 				/*Hit a wall, draw the ray*/
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+				SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
 				SDL_RenderDrawLine(renderer,
 						player->position.x,
 						player->position.y,
 						x,
 						y);
-				break;
+				hit = true;
 			}
 
-			ray_length += 1;
 		}
 		ray_angle += ray_angle_increment;
 	}

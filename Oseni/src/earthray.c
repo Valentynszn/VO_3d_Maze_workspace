@@ -138,10 +138,9 @@ int main(void)
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 20; /*size of the guy at the center*/
-	SDL_Rect rect = {1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
+	Player player = {{1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2},0.0f}; /* Start at the center of the screen */
+	SDL_Rect rect = {player.position.x, player.position.y, bot_size, bot_size};
 
-	/* Declared new_rect outside the event loop */
-	SDL_Rect new_rect_x, new_rect_y;
 
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 2.5f; /* Movement speed */
@@ -202,26 +201,26 @@ int main(void)
 			}
 		}
 		/* Initialize new_rect to the current position before moving */
-		new_rect_x = rect;
-		new_rect_y = rect;
+		SDL_Rect new_rect_x = rect;
+		SDL_Rect new_rect_y = rect;
 
 		if (keystate[SDL_SCANCODE_W])
 		{
-			new_rect_x.x += speed * cos(angle); /* Move forward */
-			new_rect_y.y += speed * sin(angle);
+			new_rect_x.x += speed * cos(player.angle); /* Move forward */
+			new_rect_y.y += speed * sin(player.angle);
 		}
 		if (keystate[SDL_SCANCODE_A])
 		{
-			angle -= 15.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
+			player.angle -= 15.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
 		}
 		if (keystate[SDL_SCANCODE_D])
 		{
-			angle += 15.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
+			player.angle += 15.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
 		}
 		if (keystate[SDL_SCANCODE_S])
 		{
-			new_rect_x.x -= speed * cos(angle);
-			new_rect_y.y -= speed * sin(angle);
+			new_rect_x.x -= speed * cos(player.angle);
+			new_rect_y.y -= speed * sin(player.angle);
 
 		}
 	
@@ -239,10 +238,10 @@ int main(void)
 
 
 		/* Wrap angle to stay within (0, 2*pi)*/
-		if (angle < 0.0f)
-			angle += 2 * M_PI;
-		else if (angle >= 2 * M_PI)
-			angle -= 2 * M_PI;
+		if (player.angle < 0.0f)
+			player.angle += 2 * M_PI;
+		else if (player.angle >= 2 * M_PI)
+			player.angle -= 2 * M_PI;
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 		SDL_RenderClear(renderer); /*Clear the screen with black*/
@@ -255,8 +254,8 @@ int main(void)
 		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};
 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /*Set bot color to white*/
-		SDL_Rect rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
-		SDL_RenderFillRect(renderer, &rect);
+		SDL_Rect bot_rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
+		SDL_RenderFillRect(renderer, &bot_rect);
 
 		/* Draw the direction line */
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /* Set line color to white*/
@@ -264,7 +263,11 @@ int main(void)
 		SDL_Point line_end = {center.x + line_length * cos(angle), center.y + line_length * sin(angle)};
 		SDL_RenderDrawLine(renderer, center.x, center.y, line_end.x, line_end.y);
 
-		castRays(renderer, position.x, position.y, angle); /*Draw the rays*/
+		player.position.x = rect.x; /* Update player's position */
+		player.position.y = rect.y;
+
+		castRays(renderer, &player); /*Draw the rays*/
+
 		SDL_RenderPresent(renderer); /*update the screen*/
 
 		SDL_Delay(10); /*adjust delay for frame rate*/

@@ -83,7 +83,7 @@ int main(void)
 	SDL_Rect new_rect_x, new_rect_y;
 
 	float angle = 0.0f; /* Initial angle for rotation */
-	float speed = 5.0f; /* Movement speed */
+	float speed = 2.5f; /* Movement speed */
 
 	/* Array to keep track of key states */
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -143,11 +143,11 @@ int main(void)
 		}
 		if (keystate[SDL_SCANCODE_A])
 		{
-			angle -= 30.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
+			angle -= 15.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
 		}
 		if (keystate[SDL_SCANCODE_D])
 		{
-			angle += 30.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
+			angle += 15.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
 		}
 		if (keystate[SDL_SCANCODE_S])
 		{

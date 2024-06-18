@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAP_WIDTH 16
-#define MAP_HEIGHT 6
-#define TILE_SIZE 40
+#define MAP_WIDTH 32
+#define MAP_HEIGHT 12
+#define TILE_SIZE 80
 
 /**
  * Main function to initialize SDL, create a window and renderer, draw a point in the center of the screen..

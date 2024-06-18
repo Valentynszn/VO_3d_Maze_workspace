@@ -84,6 +84,7 @@ int main(void)
 
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 2.5f; /* Movement speed */
+	bool showMap = false; /* Flag to toggle map display */
 
 	/* Array to keep track of key states */
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -131,6 +132,13 @@ int main(void)
 			{
 				quit = 1;
 			}
+			else if (event.type == SDL_KEYDOWN)
+			{
+				if (event.key.keysym.sym == SDLK_q)
+				{
+					showMap = !showMap; /* Toggle map display */
+				}
+			}
 		}
 		/* Initialize new_rect to the current position before moving */
 		new_rect_x = rect;
@@ -177,8 +185,10 @@ int main(void)
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 		SDL_RenderClear(renderer); /*Clear the screen with black*/
-
-		renderMap(renderer, map); /* Render the map */
+		if (showMap)
+		{
+			renderMap(renderer, map); /* Render the map */
+		}
 
 		/* Calculate center of the bot */
 		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};

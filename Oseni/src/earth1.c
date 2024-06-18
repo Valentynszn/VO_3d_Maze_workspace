@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define MAP_WIDTH 32
-#define MAP_HEIGHT 12
-#define TILE_SIZE 80
+#define MAP_WIDTH 20
+#define MAP_HEIGHT 13
+#define TILE_SIZE 40
 
 /**
  * Main function to initialize SDL, create a window and renderer, draw a point in the center of the screen..
@@ -14,25 +14,21 @@
  * Return: 0
  */
 
-void loadMap(char map[MAP_HEIGHT][MAP_WIDTH])
-{
-	FILE *file = fopen("world.txt", "r");
-	if (file == NULL)
-	{
-		printf("Could not open map file!\n");
-		exit(1);
-	}
-
-	for (int i = 0; i < MAP_HEIGHT; i++)
-	{
-		for (int j = 0; j < MAP_WIDTH; j++)
-		{
-			map[i][j] = fgetc(file);
-		}
-		fgetc(file); /*Skips the newline character*/
-	}
-	fclose(file);
-}
+char map[MAP_HEIGHT][MAP_WIDTH] = {
+	{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+	{6, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 6},
+	{6, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 6, 0, 0, 0, 6, 0, 0, 0, 6},
+	{6, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 6, 0, 7, 7, 0, 0, 0, 0, 6},
+	{6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 7, 0, 6},
+	{6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 6},
+	{6, 0, 0, 0, 0, 0, 7, 7, 7, 0, 0, 1, 0, 0, 0, 0, 7, 7, 0, 6},
+	{6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+	{6, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 1, 0, 6},
+	{6, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 1, 0, 6},
+	{6, 0, 0, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+	{6, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
+	{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
+};
 
 void renderMap(SDL_Renderer *renderer, char map[MAP_HEIGHT][MAP_WIDTH])
 {
@@ -40,14 +36,40 @@ void renderMap(SDL_Renderer *renderer, char map[MAP_HEIGHT][MAP_WIDTH])
 	{
 		for (int j = 0; j < MAP_WIDTH; j++)
 		{
-			if (map[i][j] == '1')
+			SDL_Rect tile = {j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+			if (map[i][j] == 1)
 			{
-				SDL_Rect tile = {j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE};
 				SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); /*Green colored walls*/
+				SDL_RenderFillRect(renderer, &tile);
+			}
+			else if (map[i][j] == 6)
+			{
+				SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /* Red colored walls */
+				SDL_RenderFillRect(renderer, &tile);
+			}
+			else if (map[i][j] == 7)
+			{
+				SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); /* Blue colored walls */
 				SDL_RenderFillRect(renderer, &tile);
 			}
 		}
 	}
+}
+
+bool checkCollision(SDL_Rect *rect, char map[MAP_HEIGHT][MAP_WIDTH])
+{
+	int left = rect->x / TILE_SIZE;
+	int right = (rect->x + rect->w) / TILE_SIZE;
+	int top = rect->y / TILE_SIZE;
+	int bottom = (rect->y + rect->h) / TILE_SIZE;
+
+	if (left < 0 || right >= MAP_WIDTH || top < 0 || bottom >= MAP_HEIGHT)
+		return true;
+
+	if (map[top][left] != 0 || map[top][right] != 0 || map[bottom][left] != 0 || map[bottom][right] != 0)
+		return true;
+
+	return false;
 }
 
 int main(void)
@@ -56,6 +78,10 @@ int main(void)
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 20; /*size of the guy at the center*/
 	SDL_Rect rect = {1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
+
+	/* Declared new_rect outside the event loop */
+	SDL_Rect new_rect;
+
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 5.0f; /* Movement speed */
 
@@ -88,8 +114,8 @@ int main(void)
 		return (1);
 	}
 
-	char map[MAP_HEIGHT][MAP_WIDTH];
-	loadMap(map);
+	/* Load the map */
+	renderMap(renderer, map);
 
 	/*Event loop*/
 	SDL_Event event;
@@ -127,6 +153,12 @@ int main(void)
 				default:
 					break;
 			}
+		}
+
+		/* Check for collisions */
+		if (!checkCollision(&new_rect, map))
+		{
+			rect = new_rect; /* Update position only if no collision */
 		}
 
 

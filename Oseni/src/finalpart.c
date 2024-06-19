@@ -7,8 +7,10 @@
 #define MAP_WIDTH 20
 #define MAP_HEIGHT 13
 #define TILE_SIZE 40
-#define FOV_ANGLE (60 * M_PI / 180.0f)  /*Field of view angle in radians*/
+#define FOV_ANGLE 60 * M_PI / 180.0f  /*Field of view angle in radians*/
 #define NUM_RAYS 100
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 600
 
 /**
  * Main function to initialize SDL, create a window and renderer, draw a point in the center of the screen..
@@ -87,49 +89,67 @@ bool checkCollision(SDL_Rect *rect, char map[MAP_HEIGHT][MAP_WIDTH])
 	return false;
 }
 
-bool isWall(float x, float y)
-{
-	/*Return true if (x, y) is a wall, false otherwise*/
-	return false;
-}
-
 void castRays(SDL_Renderer *renderer, Player *player)
 {
-	int ray_count = 100;
-	float fov = M_PI / 3; /*Field of view (45 degrees)*/
-	float start_angle = -fov / 2; /*Start angle of the rays*/
+	float ray_angle_increment = FOV_ANGLE / (float)NUM_RAYS;
+	float ray_angle = player->angle - FOV_ANGLE / 2.0f;
 
-	for (int i = 0; i < ray_count; i++)
+	for (int ray = 0; ray < NUM_RAYS; ray++)
 	{
-		float ray_angle = start_angle + (fov / ray_count) * i;
-		float ray_x = player->position.x;
-		float ray_y = player->position.y;
-		/*Calculating rays end point*/
-		float ray_dx = cos(ray_angle);
-		float ray_dy = sin(ray_angle);
+		/*Calculate ray endpoints*/
+		float ray_dir_x = cos(ray_angle);
+		float ray_dir_y = sin(ray_angle);
+
+		/*Initialize ray variables*/
+		float x = player->position.x;
+		float y = player->position.y;
+		bool hit = false;
 		float distance = 0;
 
 		/*Ray casting loop*/
-		while (distance < 1000)
+		while (!hit && distance < 1000)
 		{
-			ray_x += ray_dx;
-			ray_y += ray_dy;
+			x += ray_dir_x;
+			y += ray_dir_y;
 			distance += 1;
 
-			 if (isWall(ray_x, ray_y))
-			 {
-				 break;
-			 }
-			 
-			 /*Hit a wall, draw the ray*/
-			SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-			SDL_RenderDrawLine(renderer,
-					player->position.x,
-					player->position.y,
-					ray_x,
-					ray_y);
+			int map_x = (int)(x / TILE_SIZE);
+			int map_y = (int)(y / TILE_SIZE);
+
+			if (map[map_y][map_x] != 0)
+			{
+				hit = true;
+				/* Calculate perpendicular distance to avoid fish-eye effect */
+				float perpendicular_distance = distance * cos(ray_angle - player->angle);
+				/* Calculate the height of the wall slice */
+				int wall_height = (int)(SCREEN_HEIGHT / perpendicular_distance);
+
+				/* Calculate the start and end y-coordinates for the wall slice */
+				int wall_start = (SCREEN_HEIGHT / 2) - (wall_height / 2);
+				int wall_end = (SCREEN_HEIGHT / 2) + (wall_height / 2);
+
+
+				/* Set color based on the wall type */
+				if (map[map_y][map_x] == 1)
+				{
+					SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); /* Green */
+				}
+				else if (map[map_y][map_x] == 6)
+				{
+					SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /* Red */
+				}
+				else if (map[map_y][map_x] == 7)
+				{
+					SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); /* Blue */
+				}
+
+				/* Draw the wall slice */
+				SDL_RenderDrawLine(renderer, ray * (SCREEN_WIDTH / NUM_RAYS), wall_start, ray * (SCREEN_WIDTH / NUM_RAYS), wall_end);
+
+			}
+
 		}
-	
+		ray_angle += ray_angle_increment;
 	}
 }
 
@@ -257,12 +277,11 @@ int main(void)
 		SDL_Rect bot_rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
 		SDL_RenderFillRect(renderer, &bot_rect);
 
-		/* Draw the line to act as a face*/
-		SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /* Set line color to white*/
-		float line_length = 30.0f; /* Length of the direction line */
-		float line_end_x = player.position.x + line_length * cos(player.angle);
-		float line_end_y = player.position.y + line_length * sin(player.angle);
-		SDL_RenderDrawLine(renderer, player.position.x, player.position.y, line_end_x, line_end_y);
+		/* Draw the direction line */
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /* Set line color to white*/
+		int line_length = 30; /* Length of the direction line */
+		SDL_Point line_end = {center.x + line_length * cos(angle), center.y + line_length * sin(angle)};
+		SDL_RenderDrawLine(renderer, center.x, center.y, line_end.x, line_end.y);
 
 		player.position.x = rect.x; /* Update player's position */
 		player.position.y = rect.y;

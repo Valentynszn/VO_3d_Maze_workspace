@@ -7,7 +7,7 @@
 #define MAP_WIDTH 20
 #define MAP_HEIGHT 13
 #define TILE_SIZE 40
-#define FOV_ANGLE 60 * M_PI / 180.0f  /*Field of view angle in radians*/
+#define FOV_ANGLE (60 * M_PI / 180.0f)  /*Field of view angle in radians*/
 #define NUM_RAYS 100
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 600
@@ -280,7 +280,7 @@ int main(void)
 		/* Draw the direction line */
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /* Set line color to white*/
 		int line_length = 30; /* Length of the direction line */
-		SDL_Point line_end = {center.x + line_length * cos(angle), center.y + line_length * sin(angle)};
+		SDL_Point line_end = {center.x + line_length * cos(player.angle), center.y + line_length *sin(player.angle)};
 		SDL_RenderDrawLine(renderer, center.x, center.y, line_end.x, line_end.y);
 
 		player.position.x = rect.x; /* Update player's position */

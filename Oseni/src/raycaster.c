@@ -7,8 +7,8 @@
 #define MAP_WIDTH 20
 #define MAP_HEIGHT 13
 #define TILE_SIZE 40
-#define FOV_ANGLE 60 * M_PI / 180.0f  /*Field of view angle in radians*/
-#define NUM_RAYS 100
+#define SCREEN_HEIGHT 1280
+#define SCREEN_WIDTH 600
 
 /**
  * Main function to initialize SDL, create a window and renderer, draw a point in the center of the screen..
@@ -31,19 +31,6 @@ char map[MAP_HEIGHT][MAP_WIDTH] = {
 	{6, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6},
 	{6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6},
 };
-
-typedef struct
-{
-	float x;
-	float y;
-} Vector2;
-
-typedef struct
-{
-	Vector2 position;
-	float angle;
-} Player;
-
 
 void renderMap(SDL_Renderer *renderer, char map[MAP_HEIGHT][MAP_WIDTH])
 {
@@ -87,60 +74,134 @@ bool checkCollision(SDL_Rect *rect, char map[MAP_HEIGHT][MAP_WIDTH])
 	return false;
 }
 
-void castRays(SDL_Renderer *renderer, Player *player)
+void castRays(SDL_Renderer *renderer, float playerX, float playerY, float playerAngle)
 {
-	float ray_angle_increment = FOV_ANGLE / (float)NUM_RAYS;
-	float ray_angle = player->angle - FOV_ANGLE / 2.0f;
+	/*Adjust the player's position to the center of the tile*/
+	playerX += TILE_SIZE / 2;
+	playerY += TILE_SIZE / 2;
 
-	for (int ray = 0; ray < NUM_RAYS; ray++)
+	/*Define the player's direction vector*/
+	float dirX = cos(playerAngle);
+	float dirY = sin(playerAngle);
+
+	/*Define the camera plane (this determines the field of view)*/
+	float planeX = -dirY;
+	float planeY = dirX;
+
+	for (int x = 0; x < SCREEN_WIDTH; x++)
 	{
-		/*Calculate ray endpoints*/
-		float ray_dir_x = cos(ray_angle);
-		float ray_dir_y = sin(ray_angle);
+		/*Calculate the ray position and direction*/
+		float cameraX = 2 * x / (float)SCREEN_WIDTH - 1; /*x-coordinate in camera space*/
+		float rayDirX = dirX + planeX * cameraX;
+		float rayDirY = dirY + planeY * cameraX;
 
-		/*Initialize ray variables*/
-		float x = player->position.x;
-		float y = player->position.y;
+		/*Which box of the map we're in*/
+		int mapX = (int)playerX / TILE_SIZE;
+		int mapY = (int)playerY / TILE_SIZE;
+
+		/*Length of the ray from one x or y-side to the next x or y-side*/
+		float deltaDistX = fabs(1 / rayDirX);
+		float deltaDistY = fabs(1 / rayDirY);
+
+		/*Calculate step and initial sideDist*/
+		int stepX, stepY;
+		float sideDistX, sideDistY;
+
+		if (rayDirX < 0)
+		{
+			stepX = -1;
+			sideDistX = (playerX - mapX * TILE_SIZE) * deltaDistX;
+		}
+		else
+		{
+			stepX = 1;
+			sideDistX = ((mapX + 1) * TILE_SIZE - playerX) * deltaDistX;
+		}
+		if (rayDirY < 0)
+		{
+			stepY = -1;
+			sideDistY = (playerY - mapY * TILE_SIZE) * deltaDistY;
+		}
+		else
+		{
+			stepY = 1;
+			sideDistY = ((mapY + 1) * TILE_SIZE - playerY) * deltaDistY;
+		}
+		/*Perform DDA*/
 		bool hit = false;
-
-		/*Ray casting loop*/
+		int side; /*Was a NS or a EW wall hit?*/
 		while (!hit)
 		{
-			x += ray_dir_x;
-			y += ray_dir_y;
-
-			int map_x = (int)(x / TILE_SIZE);
-			int map_y = (int)(y / TILE_SIZE);
-
-			if (map[map_y][map_x] != 0)
+			/*Jump to next map square, either in x-direction, or in y-direction*/
+			if (sideDistX < sideDistY)
 			{
-				/*Hit a wall, draw the ray*/
-				SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-				SDL_RenderDrawLine(renderer,
-						player->position.x,
-						player->position.y,
-						x,
-						y);
-				hit = true;
+				sideDistX += deltaDistX;
+				mapX += stepX;
+				side = 0;
 			}
-
+			else
+			{
+				sideDistY += deltaDistY;
+				mapY += stepY;
+				side = 1;
+			}
+			/*Check if ray has hit a wall*/
+			if (map[mapY][mapX] > 0)
+				hit = true;
 		}
-		ray_angle += ray_angle_increment;
+	
+		/*Calculate distance to the point of impact*/
+		float perpWallDist;
+		if (side == 0)
+			perpWallDist = (mapX - playerX + (1 - stepX) / 2) / rayDirX;
+		else
+			perpWallDist = (mapY - playerY + (1 - stepY) / 2) / rayDirY;
+
+		/*Calculate height of line to draw on screen*/
+		int lineHeight = (int)(SCREEN_HEIGHT / perpWallDist);
+
+		/*Calculate lowest and highest pixel to fill in current stripe*/
+		int drawStart = -lineHeight / 2 + SCREEN_HEIGHT / 2;
+		if (drawStart < 0)
+			drawStart = 0;
+		int drawEnd = lineHeight / 2 + SCREEN_HEIGHT / 2;
+		if (drawEnd >= SCREEN_HEIGHT)
+			drawEnd = SCREEN_HEIGHT - 1;
+
+		/*Choose wall color*/
+		SDL_Color color;
+		if (map[mapY][mapX] == 1)
+			color = (SDL_Color){0, 255, 0, 255}; /*Green*/
+		else if (map[mapY][mapX] == 6)
+			color = (SDL_Color){255, 0, 0, 255}; /*Red*/
+		else if (map[mapY][mapX] == 7)
+			color = (SDL_Color){0, 0, 255, 255}; /*Blue*/
+
+		/*Set the color and draw the vertical stripe*/
+		SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+		SDL_RenderDrawLine(renderer, x, drawStart, x, drawEnd);
 	}
 }
+
 
 int main(void)
 {
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 20; /*size of the guy at the center*/
-	Player player = {{1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2},0.0f}; /* Start at the center of the screen */
-	SDL_Rect rect = {player.position.x, player.position.y, bot_size, bot_size};
+	SDL_Rect rect = {1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
 
+	/* Declared new_rect outside the event loop */
+	SDL_Rect new_rect_x, new_rect_y;
 
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 2.5f; /* Movement speed */
 	bool showMap = false; /* Flag to toggle map display */
+
+	/* Player position and angle */
+	float playerX = rect.x + bot_size / 2;
+	float playerY = rect.y + bot_size / 2;
+	float playerAngle = angle;
 
 	/* Array to keep track of key states */
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
@@ -197,26 +258,26 @@ int main(void)
 			}
 		}
 		/* Initialize new_rect to the current position before moving */
-		SDL_Rect new_rect_x = rect;
-		SDL_Rect new_rect_y = rect;
+		new_rect_x = rect;
+		new_rect_y = rect;
 
 		if (keystate[SDL_SCANCODE_W])
 		{
-			new_rect_x.x += speed * cos(player.angle); /* Move forward */
-			new_rect_y.y += speed * sin(player.angle);
+			new_rect_x.x += speed * cos(angle); /* Move forward */
+			new_rect_y.y += speed * sin(angle);
 		}
 		if (keystate[SDL_SCANCODE_A])
 		{
-			player.angle -= 15.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
+			angle -= 15.0f * M_PI / 180.0f; /* Rotate left by 30 degrees */
 		}
 		if (keystate[SDL_SCANCODE_D])
 		{
-			player.angle += 15.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
+			angle += 15.0f * M_PI / 180.0f; /* Rotate right by 30 degrees*/
 		}
 		if (keystate[SDL_SCANCODE_S])
 		{
-			new_rect_x.x -= speed * cos(player.angle);
-			new_rect_y.y -= speed * sin(player.angle);
+			new_rect_x.x -= speed * cos(angle);
+			new_rect_y.y -= speed * sin(angle);
 
 		}
 	
@@ -234,10 +295,10 @@ int main(void)
 
 
 		/* Wrap angle to stay within (0, 2*pi)*/
-		if (player.angle < 0.0f)
-			player.angle += 2 * M_PI;
-		else if (player.angle >= 2 * M_PI)
-			player.angle -= 2 * M_PI;
+		if (angle < 0.0f)
+			angle += 2 * M_PI;
+		else if (angle >= 2 * M_PI)
+			angle -= 2 * M_PI;
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 		SDL_RenderClear(renderer); /*Clear the screen with black*/
@@ -250,19 +311,15 @@ int main(void)
 		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};
 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /*Set bot color to white*/
-		SDL_Rect bot_rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
-		SDL_RenderFillRect(renderer, &bot_rect);
+		SDL_Rect rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
+		SDL_RenderFillRect(renderer, &rect);
 
 		/* Draw the direction line */
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /* Set line color to white*/
 		int line_length = 30; /* Length of the direction line */
 		SDL_Point line_end = {center.x + line_length * cos(angle), center.y + line_length * sin(angle)};
 		SDL_RenderDrawLine(renderer, center.x, center.y, line_end.x, line_end.y);
-
-		player.position.x = rect.x; /* Update player's position */
-		player.position.y = rect.y;
-
-		castRays(renderer, &player); /*Draw the rays*/
+		castRays(renderer, playerX, playerY, playerAngle);
 
 		SDL_RenderPresent(renderer); /*update the screen*/
 

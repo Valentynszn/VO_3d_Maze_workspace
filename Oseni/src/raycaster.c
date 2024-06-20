@@ -215,7 +215,7 @@ int main(void)
 	window = SDL_CreateWindow(
 			"tutorial",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			1280, 600,
+			SCREEN_WIDTH, SCREEN_HEIGHT,
 			SDL_WINDOW_SHOWN
 			);
 
@@ -300,30 +300,32 @@ int main(void)
 		else if (angle >= 2 * M_PI)
 			angle -= 2 * M_PI;
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
-		SDL_RenderClear(renderer); /*Clear the screen with black*/
-		if (showMap)
-		{
-			renderMap(renderer, map); /* Render the map */
-		}
+	playerX = rect.x + bot_size / 2;
+	playerY = rect.y + bot_size / 2;
+	playerAngle = angle;
 
-		/* Calculate center of the bot */
-		SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_RenderClear(renderer);
 
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /*Set bot color to white*/
-		SDL_Rect rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
-		SDL_RenderFillRect(renderer, &rect);
+	if (showMap)
+	{
+		renderMap(renderer, map);
+	}
 
-		/* Draw the direction line */
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /* Set line color to white*/
-		int line_length = 30; /* Length of the direction line */
-		SDL_Point line_end = {center.x + line_length * cos(angle), center.y + line_length * sin(angle)};
-		SDL_RenderDrawLine(renderer, center.x, center.y, line_end.x, line_end.y);
-		castRays(renderer, playerX, playerY, playerAngle);
+	SDL_Point center = {rect.x + bot_size / 2, rect.y + bot_size / 2};
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	SDL_Rect rect = {center.x - bot_size / 2, center.y - bot_size / 2, bot_size, bot_size};
+	SDL_RenderFillRect(renderer, &rect);
 
-		SDL_RenderPresent(renderer); /*update the screen*/
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	int line_length = 30;
+	SDL_Point line_end = {center.x + line_length * cos(angle), center.y + line_length * sin(angle)};
+	SDL_RenderDrawLine(renderer, center.x, center.y, line_end.x, line_end.y);
 
-		SDL_Delay(10); /*adjust delay for frame rate*/
+	castRays(renderer, playerX, playerY, playerAngle);
+
+	SDL_RenderPresent(renderer);
+	SDL_Delay(10);	
 }
 
 

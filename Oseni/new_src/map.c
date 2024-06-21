@@ -10,6 +10,10 @@
 #define SCREEN_HEIGHT 1280
 #define SCREEN_WIDTH 600
 
+void renderMap(SDL_Renderer *renderer, char map[MAP_HEIGHT][MAP_WIDTH]);
+bool checkCollision(SDL_Rect *bot, char map[MAP_HEIGHT][MAP_WIDTH]);
+
+
 /**
  * Main function to initialize SDL, create a window and renderer, draw a point in the center of the screen..
  *
@@ -148,7 +152,6 @@ bool checkCollision(SDL_Rect *bot, char map[MAP_HEIGHT][MAP_WIDTH])
 		}
 
 
-
 		/* Wrap angle to stay within (0, 2*pi)*/
 		if (angle < 0.0f)
 			angle += 2 * M_PI;
@@ -157,9 +160,10 @@ bool checkCollision(SDL_Rect *bot, char map[MAP_HEIGHT][MAP_WIDTH])
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); /*Set draw colour to black*/
 	SDL_RenderClear(renderer); /*Clear the screen with black*/
+	renderMap(renderer, map);
 
 	int centerX = 1280 / 2;
-	int centerY = 720 / 2;
+	int centerY = 600 / 2;
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
 	SDL_RenderFillRect(renderer, &bot);
 

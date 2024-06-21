@@ -64,7 +64,7 @@ int main(void)
 						case SDLK_d:
 							angle += 30.0f * M_PI / 180.0f; /* Rotate right by 30 degrees */
 							break;
-						case SDLK_x:
+						case SDLK_s:
 							bot.x -= speed * cos(angle);
 							bot.y -= speed * sin(angle);
 							break;

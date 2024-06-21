@@ -21,7 +21,7 @@ int main(void)
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 40; /*size of the guy at the center*/
-	SDL_Rect bot = {1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
+	SDL_Rect bot = {SCREEN_WIDTH / 2 - bot_size / 2, SCREEN_HEIGHT / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 2.5f; /* Movement speed */
 
@@ -89,9 +89,6 @@ int main(void)
 
 	int centerX = 1280 / 2;
 	int centerY = 720 / 2;
-	SDL_Rect bot = {centerX - bot_size / 2,
-			centerY - bot_size / 2,
-			bot_size, bot_size};
 	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); /*Set draw color to red*/
 	SDL_RenderFillRect(renderer, &bot);
 
@@ -100,7 +97,7 @@ int main(void)
 	int botCenterY = bot.y + bot.h / 2;
 
 	/*Set the draw color to white and draw the line*/
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // White color
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White color
 	SDL_RenderDrawLine(renderer, centerX, centerY, botCenterX, botCenterY);
 
 

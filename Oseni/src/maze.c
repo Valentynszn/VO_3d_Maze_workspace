@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <math.h>
+#include <SDL2/SDL.h>
 
 #define MAP_WIDTH 20
 #define MAP_HEIGHT 13
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         SDL_DestroyWindow(window);
@@ -138,6 +138,8 @@ int main(int argc, char *argv[]) {
         renderMap(renderer, map);
 
         /* Draw player */
+        playerRect.x = (int)playerX;
+        playerRect.y = (int)playerY;
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &playerRect);
 
@@ -152,4 +154,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

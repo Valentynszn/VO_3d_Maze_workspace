@@ -25,10 +25,10 @@ int main(void)
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 40; /*size of the guy at the center*/
-	SDL_Rect bot = {1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
+	SDL_Rect bot = {SCREEN_WIDTH / 2 - bot_size / 2, SCREEN_HEIGHT / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 2.5f; /* Movement speed */
-	SDL_Rect new_bot_x, new_bot_y;
+	SDL_Rect new_bot_x = bot, new_bot_y = bot;
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -39,7 +39,7 @@ int main(void)
 	window = SDL_CreateWindow(
 			"tutorial",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			1280, 600,
+			SCREEN_WIDTH, SCREEN_HEIGHT,
 			SDL_WINDOW_SHOWN
 			);
 
@@ -108,6 +108,9 @@ bool checkCollision(SDL_Rect *bot, char map[MAP_HEIGHT][MAP_WIDTH])
 	int quit = 0;
 	while (!quit)
 	{
+		new_bot_x = bot;
+		new_bot_y = bot;
+
 		while (SDL_PollEvent(&event))
 		{
 			switch (event.type)

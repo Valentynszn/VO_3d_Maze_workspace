@@ -25,7 +25,7 @@ int main(void)
 	SDL_Window *window = NULL;
 	SDL_Renderer *renderer = NULL;
 	int bot_size  = 40; /*size of the guy at the center*/
-	SDL_Rect bot = {SCREEN_WIDTH / 2 - bot_size / 2, SCREEN_HEIGHT / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
+	SDL_Rect bot = {1280 / 2 - bot_size / 2, 600 / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
 	float angle = 0.0f; /* Initial angle for rotation */
 	float speed = 2.5f; /* Movement speed */
 	SDL_Rect new_bot_x, new_bot_y;
@@ -162,10 +162,7 @@ bool checkCollision(SDL_Rect *bot, char map[MAP_HEIGHT][MAP_WIDTH])
 	SDL_RenderClear(renderer); /*Clear the screen with black*/
 	renderMap(renderer, map);
 
-	int centerX = 1280 / 2;
-	int centerY = 600 / 2;
-	SDL_Rect bot = {SCREEN_WIDTH / 2 - bot_size / 2, SCREEN_HEIGHT / 2 - bot_size / 2, bot_size, bot_size}; /* Start at the center of the screen */
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); /*Set draw color to red*/
+	SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); /*Set draw color to yellow*/
 	SDL_RenderFillRect(renderer, &bot);
 
 	/*Calculate the center of the bot*/
